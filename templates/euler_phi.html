@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Euler's Totient Function - Numerography{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label {
+        display: block; font-size: 1rem; font-weight: 600;
+        margin-bottom: 0.5rem; color: var(--text);
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        background-color: rgba(255,255,255,0.9);
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        color: #000;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input::placeholder {
+        color: var(--text-muted);
+        opacity: 0.6;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary);
+        background-color: rgba(255,255,255,1);
+        color: #000;
+    }
+
+    .btn {
+        padding: .875rem 2rem; font-size:1rem; font-weight:600;
+        border:none; border-radius:8px; cursor:pointer; transition:.3s; display:inline-block;
+    }
+    .btn-primary { background: var(--primary); color:white; }
+    .btn-primary:hover {
+        background: var(--primary-dark); transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+
+    .result-box {
+        margin-top:1.5rem; padding:1.5rem; background:rgba(37,99,235,.1);
+        border:2px solid var(--primary); border-radius:12px;
+        font-size:1.25rem; font-weight:600; color:var(--text);
+        word-wrap:break-word; transition:.3s;
+    }
+    .result-box.fade-out { opacity:0; }
+
+    .card { animation: fadeIn .5s ease-out; box-shadow:0 4px 6px rgba(0,0,0,.3); }
+    @keyframes fadeIn { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+
+    .history-section { margin-top: 2rem; }
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--primary);
+    }
+    .history-header h3 {
+        color: var(--primary);
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .history-item {
+        padding: 1.5rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--primary);
+        border-radius: 10px;
+        margin-bottom: 1.2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        animation: slideIn 0.4s ease-out;
+    }
+    .history-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(155, 93, 229, 0.2);
+        border-left-color: var(--primary-dark);
+    }
+    .history-item-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .history-item-content {
+        font-size: 1.1rem;
+        color: var(--text);
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    .history-item-input {
+        margin-bottom: 1rem;
+    }
+    .history-item-result {
+        background: rgba(155, 93, 229, 0.08);
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+    }
+    .history-item-result .history-item-content {
+        color: var(--primary);
+        font-weight: 600;
+    }
+    .timestamp {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.3rem 0.75rem;
+        background: rgba(100, 100, 100, 0.1);
+        border-radius: 20px;
+    }
+    .timestamp::before {
+        content: "🕐";
+        font-size: 0.9rem;
+    }
+    body.dark .history-item {
+        background: rgba(30, 41, 59, 0.6);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    body.dark .history-item:hover {
+        background: rgba(30, 41, 59, 0.8);
+        box-shadow: 0 4px 16px rgba(155, 93, 229, 0.3);
+    }
+    body.dark .history-item-result {
+        background: rgba(155, 93, 229, 0.15);
+    }
+    body.dark .timestamp {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .btn-danger { 
+        background: #dc2626; 
+        color: white;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .about-section {
+        background: linear-gradient(135deg, rgba(244, 114, 182, 0.12), rgba(244, 114, 182, 0.08));
+        border-left:4px solid var(--primary);
+    }
+    .about-section h3 { color: var(--primary); margin-bottom:1rem; }
+
+    body.dark .about-section {
+        background: linear-gradient(135deg, rgba(126, 172, 255, 0.18), rgba(126, 172, 255, 0.1));
+        border-left-color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Euler's Totient Function</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">
+        Calculate φ(n) - the count of positive integers up to n that are coprime with n. Essential for RSA cryptography!
+    </p>
+
+    <form id="calcForm">
+        <div class="form-group">
+            <label for="number">Enter Number (n):</label>
+            <input type="number" id="number" name="number" min="1" required placeholder="e.g., 100">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Calculate φ(n)</button>
+    </form>
+
+    <div id="result" style="display: none;" class="result-box"></div>
+</div>
+
+{% if history %}
+<div class="card history-section">
+    <div class="history-header">
+        <h3>📜 Recent Calculations</h3>
+        <button id="clearHistoryBtn" class="btn btn-danger">Clear History</button>
+    </div>
+    <div id="historyList">
+        {% for item in history %}
+        <div class="history-item">
+            <div class="history-item-input">
+                <div class="history-item-label">Input</div>
+                <div class="history-item-content">{{ item.inputs }}</div>
+            </div>
+            <div class="history-item-result">
+                <div class="history-item-label">Result</div>
+                <div class="history-item-content">{{ item.result }}</div>
+            </div>
+            <div class="timestamp">{{ item.timestamp }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="card about-section">
+    <h3>About Euler's Totient</h3>
+    <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 1rem;">
+        Euler's totient function φ(n) counts how many numbers less than n are relatively prime to n (i.e., gcd(k,n) = 1).
+    </p>
+    <p style="color: var(--text-muted); line-height: 1.8;">
+        <strong>Examples:</strong><br>
+        • φ(9) = 6 because 1, 2, 4, 5, 7, 8 are coprime to 9<br>
+        • φ(p) = p-1 for any prime p<br>
+        • In RSA encryption, φ(n) is used to calculate the private key
+    </p>
+</div>
+
+<script>
+document.getElementById('calcForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const number = document.getElementById('number').value;
+    const resultDiv = document.getElementById('result');
+    
+    resultDiv.style.display = 'block';
+    resultDiv.textContent = 'Computing...';
+    resultDiv.classList.remove('fade-out');
+    
+    try {
+        const response = await fetch('/calculate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                operation: 'euler_phi',
+                number: number
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            resultDiv.textContent = data.result;
+            resultDiv.style.borderColor = 'var(--success)';
+            
+            setTimeout(() => {
+                resultDiv.classList.add('fade-out');
+                setTimeout(() => { resultDiv.style.display = 'none'; }, 800);
+            }, 25000);
+        } else {
+            resultDiv.textContent = data.result;
+            resultDiv.style.borderColor = 'var(--error)';
+        }
+    } catch (error) {
+        resultDiv.textContent = 'Error: ' + error.message;
+        resultDiv.style.borderColor = 'var(--error)';
+    }
+});
+
+const clearBtn = document.getElementById('clearHistoryBtn');
+if (clearBtn) {
+    clearBtn.addEventListener('click', async () => {
+        if (confirm('Are you sure you want to clear all Euler totient history?')) {
+            try {
+                const response = await fetch('/clear-history/euler_phi', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await response.json();
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to clear history');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

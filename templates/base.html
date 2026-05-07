@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Numerography - Number Theory Tools{% endblock %}</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #f472b6;
+            --primary-dark: #ec4899;
+            --text: #2b1c28;
+            --text-muted: #5c3e50;
+            --border: #f8cde2;
+            --card: rgba(255, 255, 255, 0.9);
+            --card-strong: rgba(255, 255, 255, 0.95);
+            --glow: 0 12px 35px rgba(244, 114, 182, 0.2);
+            --accent: #9b8cff;
+            --mint: #cce0ff;   /* soft blue */
+            --citrus: #f3a5d6; /* pink accent */
+            --night: #0b111c;
+            --font-display: "Segoe UI", "Helvetica Neue", sans-serif;
+            --gradient: radial-gradient(circle at 20% 20%, #ffe6f3 0, #fff0f7 30%, #ffffff 55%, #fef2f8 90%);
+        }
+
+        body.dark {
+            --primary: #9ec5ff;
+            --primary-dark: #7bb0ff;
+            --text: #e8edf7;
+            --text-muted: #b8c2d9;
+            --border: #253146;
+            --card: rgba(18, 25, 38, 0.92);
+            --card-strong: rgba(20, 28, 44, 0.95);
+            --glow: 0 16px 38px rgba(126, 172, 255, 0.35);
+            --accent: #7bb0ff;
+            --mint: #9ec5ff;   /* soft blue */
+            --citrus: #f09ed1; /* pink accent */
+            --night: #050910;
+            --gradient: radial-gradient(circle at 25% 20%, #0d1626 0, #0c1320 45%, #0b111c 80%);
+        }
+
+        body {
+            font-family: var(--font-display);
+            background: var(--gradient) fixed;
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.3s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 0;
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 6px 18px rgba(244, 114, 182, 0.08);
+        }
+
+        body.dark .navbar {
+            background: rgba(16, 22, 33, 0.9);
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+        }
+
+        .nav-container {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1.4rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 0.7rem;
+            border-radius: 10px;
+            transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-dark);
+            background: rgba(244, 114, 182, 0.12);
+            transform: translateY(-1px);
+        }
+
+        body.dark .nav-links a:hover {
+            background: rgba(158, 197, 255, 0.14);
+        }
+
+        .dark-toggle {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 20px rgba(244, 114, 182, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body.dark .dark-toggle {
+            box-shadow: 0 12px 24px rgba(126, 172, 255, 0.32);
+        }
+
+        .dark-toggle:hover {
+            transform: translateY(-1px) scale(1.01);
+            box-shadow: 0 12px 28px rgba(236, 72, 153, 0.35);
+        }
+
+        .container {
+            max-width: 1320px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--glow);
+        }
+
+        body.dark .card {
+            border-color: var(--border);
+        }
+
+        .card h2, .test-heading {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+
+        /* About Us Section Styling */
+        .about-us {
+            background: var(--card-strong);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem auto 4rem auto;
+            max-width: 640px;
+            text-align: center;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--glow);
+        }
+
+        .about-us h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .about-us p {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .about-us p a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .about-us p a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .about-us .copyright {
+            margin-top: 1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Flash messages / popup */
+        .flash-messages {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        .alert {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 0.8rem 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            min-width: 250px;
+            max-width: 400px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: scale(0.95);
+            animation: fadeInOut 3.5s forwards;
+        }
+
+        .alert-success::before {
+            content: "✓ ";
+        }
+        .alert-error::before {
+            content: "⚠ ";
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.95); }
+            10% { opacity: 1; transform: scale(1); }
+            80% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.95); }
+        }
+
+        /* Aurora backdrops */
+        .bg-aurora {
+            position: fixed;
+            inset: -12%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(18px);
+            opacity: 0;
+            display: none;
+        }
+
+        .bg-aurora .blob {
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            mix-blend-mode: screen;
+            opacity: 0.48;
+            animation: floatBlob 18s ease-in-out infinite alternate;
+        }
+
+        .bg-aurora .blob-1 {
+            top: 8%;
+            left: 12%;
+            background: radial-gradient(circle at 30% 30%, var(--primary), transparent 65%);
+            animation-delay: -4s;
+        }
+
+        .bg-aurora .blob-2 {
+            bottom: 4%;
+            right: 6%;
+            background: radial-gradient(circle at 70% 40%, var(--accent), transparent 70%);
+            animation-delay: -9s;
+        }
+
+        .bg-aurora .blob-3 {
+            top: 45%;
+            right: 38%;
+            background: radial-gradient(circle at 40% 60%, var(--mint), transparent 62%);
+        }
+
+        body.dark .bg-aurora .blob-1 {
+            background: radial-gradient(circle at 35% 30%, #7bb0ff, transparent 65%);
+        }
+
+        body.dark .bg-aurora .blob-2 {
+            background: radial-gradient(circle at 60% 40%, #64f2c4, transparent 70%);
+        }
+
+        body.dark .bg-aurora .blob-3 {
+            background: radial-gradient(circle at 40% 60%, #ffb1d2, transparent 62%);
+        }
+
+        @keyframes floatBlob {
+            0% { transform: translate3d(0, 0, 0) scale(1); }
+            50% { transform: translate3d(20px, -14px, 0) scale(1.08); }
+            100% { transform: translate3d(-12px, 18px, 0) scale(0.95); }
+        }
+
+        /* Floating math layer */
+        .math-sky {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+            mix-blend-mode: multiply;
+        }
+
+        .math-sky span {
+            position: absolute;
+            color: rgba(244, 114, 182, 0.48);
+            font-weight: 800;
+            will-change: transform, opacity;
+            animation: drift 18s linear infinite;
+            text-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        body.dark .math-sky {
+            mix-blend-mode: screen;
+        }
+
+        body.dark .math-sky span {
+            color: rgba(228, 241, 255, 0.95);
+            opacity: 0.95;
+            text-shadow:
+                0 0 16px rgba(255, 255, 255, 0.45),
+                0 0 36px rgba(158, 197, 255, 0.65),
+                0 0 54px rgba(155, 140, 255, 0.55),
+                0 18px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translate3d(var(--start-x), 110vh, 0) scale(var(--scale)) rotate(var(--angle));
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            50% {
+                transform: translate3d(calc(var(--start-x) + var(--drift-x)), 40vh, 0) scale(var(--scale)) rotate(calc(var(--angle) + 12deg));
+            }
+            90% { opacity: 0.3; }
+            100% {
+                transform: translate3d(calc(var(--start-x) + var(--drift-x)), -20vh, 0) scale(var(--scale)) rotate(calc(var(--angle) + 24deg));
+                opacity: 0;
+            }
+        }
+
+        .page-shell {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <div class="bg-aurora" aria-hidden="true">
+        <span class="blob blob-1"></span>
+        <span class="blob blob-2"></span>
+        <span class="blob blob-3"></span>
+    </div>
+    <div class="math-sky" aria-hidden="true"></div>
+    <div class="page-shell">
+
+    <!-- NAVBAR -->
+    {% if not (request.endpoint in ['login','register']) %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Numerography</div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('factorization') }}">Factorization</a></li>
+                <li><a href="{{ url_for('euler_phi') }}">Euler Totient</a></li>
+                <li><a href="{{ url_for('primality_test') }}">Primality</a></li>
+                <li><a href="{{ url_for('modular_exponentiation') }}">Mod Exp</a></li>
+                <li><a href="{{ url_for('chinese_remainder') }}">CRT</a></li>
+                <li><a href="{{ url_for('gcd_lcm') }}">GCD/LCM</a></li>
+
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}">Register</a></li>
+                {% endif %}
+
+                <li><button id="darkToggle" class="dark-toggle">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+    {% else %}
+    <!-- Dark/Light toggle for login/register pages -->
+    <div style="width:100%; padding: 1rem 2rem; display:flex; justify-content:flex-end;">
+        <button id="darkToggle" class="dark-toggle">🌙</button>
+    </div>
+    {% endif %}
+
+    <!-- FLASH MESSAGES -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- About Us Section -->
+    <div class="about-us">
+        <h3>About Us</h3>
+        <p><a href="https://outlook.office.com/mail/deeplink/compose?to=rrs56@mail.aub.edu" target="_blank">rrs56@mail.aub.edu</a></p>
+        <p><a href="https://outlook.office.com/mail/deeplink/compose?to=cme22@mail.aub.edu" target="_blank">cme22@mail.aub.edu</a></p>
+        <p><a href="https://outlook.office.com/mail/deeplink/compose?to=lgf03@mail.aub.edu" target="_blank">lgf03@mail.aub.edu</a></p>
+        <p><a href="https://outlook.office.com/mail/deeplink/compose?to=tmf15@mail.aub.edu" target="_blank">tmf15@mail.aub.edu</a></p>
+        <p><a href="https://outlook.office.com/mail/deeplink/compose?to=yma38@mail.aub.edu" target="_blank">yma38@mail.aub.edu</a></p>
+        <p class="copyright">&copy; 2025 Numerography</p>
+    </div>
+
+    <script>
+        // Apply saved theme on page load
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark");
+        }
+
+        function updateToggleIcon() {
+            const darkToggleBtns = document.querySelectorAll("#darkToggle");
+            const isDark = document.body.classList.contains("dark");
+            darkToggleBtns.forEach(btn => { 
+                btn.textContent = isDark ? "☀️" : "🌙"; 
+            });
+        }
+
+        updateToggleIcon();
+
+        // Toggle dark mode
+        const darkToggleBtns = document.querySelectorAll("#darkToggle");
+        darkToggleBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.body.classList.toggle("dark");
+                const isDark = document.body.classList.contains("dark");
+                localStorage.setItem("theme", isDark ? "dark" : "light");
+                updateToggleIcon();
+            });
+        });
+
+        // Generate drifting primes and φ symbols
+        (function spawnMathSky() {
+            const layer = document.querySelector(".math-sky");
+            if (!layer) return;
+            const symbols = [
+                "2","3","5","7","11","13","17","19","23","29","37",
+                "φ","φ","φ","φ","φ",
+                "GCD","LCM","LCM","GCD",
+                "CRT","mod","mod"
+            ];
+            const count = 48;
+            const nodes = [];
+
+            for (let i = 0; i < count; i++) {
+                const node = document.createElement("span");
+                const symbol = symbols[i % symbols.length];
+                node.textContent = symbol;
+                const startX = Math.random() * 100;
+                const driftX = (Math.random() * 40 - 20);
+                const scale = (Math.random() * 0.8 + 0.6).toFixed(2);
+                const angle = (Math.random() * 30 - 15).toFixed(2);
+
+                node.style.setProperty("--start-x", startX + "vw");
+                node.style.setProperty("--drift-x", driftX + "vw");
+                node.style.setProperty("--scale", scale);
+                node.style.setProperty("--angle", angle + "deg");
+                node.style.animationDuration = (14 + Math.random() * 8).toFixed(1) + "s";
+                node.style.animationDelay = (-Math.random() * 12).toFixed(1) + "s";
+                const baseSize = symbol.length > 3 ? 18 : 22;
+                const sizeJitter = symbol.length > 3 ? 28 : 48;
+                node.style.fontSize = (baseSize + Math.random() * sizeJitter).toFixed(0) + "px";
+                node.style.opacity = (0.35 + Math.random() * 0.35).toFixed(2);
+
+                layer.appendChild(node);
+                nodes.push(node);
+            }
+
+            function colorSky() {
+                const isDark = document.body.classList.contains("dark");
+                const palette = isDark
+                    ? ["#9ec5ff"]  // all blue in dark mode
+                    : ["#f472b6"]; // all pink in light mode
+                nodes.forEach((node, idx) => {
+                    const color = palette[idx % palette.length];
+                    node.style.color = color;
+                    node.style.textShadow = isDark
+                        ? `0 0 16px rgba(255,255,255,0.45), 0 0 38px ${color}cc, 0 0 58px ${color}aa, 0 18px 50px rgba(0,0,0,0.6)`
+                        : `0 10px 25px rgba(0,0,0,0.08)`;
+                });
+            }
+
+            colorSky();
+            const toggles = document.querySelectorAll("#darkToggle");
+            toggles.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    setTimeout(colorSky, 50);
+                });
+            });
+        })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+    </div>
+</body>
+</html>

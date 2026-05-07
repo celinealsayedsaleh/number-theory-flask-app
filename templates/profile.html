@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Your Profile - Numerography{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        animation: fadeIn 0.5s ease-out;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .history-section { margin-top: 2rem; }
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--primary);
+    }
+    .history-header h3 {
+        color: var(--primary);
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .history-item {
+        padding: 1.5rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--primary);
+        border-radius: 10px;
+        margin-bottom: 1.2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        animation: slideIn 0.4s ease-out;
+    }
+    .history-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(155, 93, 229, 0.2);
+        border-left-color: var(--primary-dark);
+    }
+    .history-item-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .history-item-content {
+        font-size: 1.1rem;
+        color: var(--text);
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    .history-item-type {
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px dashed var(--border);
+    }
+    .history-item-type .history-item-content {
+        color: var(--primary);
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+    .history-item-input {
+        margin-bottom: 1rem;
+    }
+    .history-item-result {
+        background: rgba(155, 93, 229, 0.08);
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+    }
+    .history-item-result .history-item-content {
+        color: var(--primary);
+        font-weight: 600;
+    }
+    .timestamp {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.3rem 0.75rem;
+        background: rgba(100, 100, 100, 0.1);
+        border-radius: 20px;
+    }
+    .timestamp::before {
+        content: "🕐";
+        font-size: 0.9rem;
+    }
+    body.dark .history-item {
+        background: rgba(30, 41, 59, 0.6);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    body.dark .history-item:hover {
+        background: rgba(30, 41, 59, 0.8);
+        box-shadow: 0 4px 16px rgba(155, 93, 229, 0.3);
+    }
+    body.dark .history-item-result {
+        background: rgba(155, 93, 229, 0.15);
+    }
+    body.dark .timestamp {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .btn-danger { 
+        background: #dc2626; 
+        color: white;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .history-empty {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+    .history-empty::before {
+        content: "📭";
+        display: block;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Your Profile</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+        Welcome, {{ current_user.username }}!  
+        Here you can review your recent calculations.
+    </p>
+</div>
+
+{% if calculations %}
+<div class="card history-section">
+    <div class="history-header">
+        <h3>📜 Recent Calculations</h3>
+        <button id="clearAllHistoryBtn" class="btn btn-danger">Clear All History</button>
+    </div>
+
+    <div id="historyList">
+        {% for calc in calculations %}
+        <div class="history-item">
+            <div class="history-item-type">
+                <div class="history-item-label">Operation Type</div>
+                <div class="history-item-content">{{ calc.operation_type }}</div>
+            </div>
+            <div class="history-item-input">
+                <div class="history-item-label">Input</div>
+                <div class="history-item-content">{{ calc.input_values }}</div>
+            </div>
+            <div class="history-item-result">
+                <div class="history-item-label">Result</div>
+                <div class="history-item-content">{{ calc.output_result }}</div>
+            </div>
+            <div class="timestamp">{{ calc.computed_at.strftime("%Y-%m-%d %H:%M:%S") }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="history-empty">
+        No saved calculations yet. Start computing!
+    </div>
+</div>
+{% endif %}
+
+<script>
+const clearAllBtn = document.getElementById('clearAllHistoryBtn');
+if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', async () => {
+        if (confirm('Are you sure you want to clear ALL calculation history? This cannot be undone!')) {
+            try {
+                const operations = ['factorization', 'euler_phi', 'primality', 'mod_exp', 'crt', 'gcd_lcm'];
+                for (const op of operations) {
+                    await fetch(`/clear-history/${op}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'}
+                    });
+                }
+                location.reload();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+    });
+}
+</script>
+{% endblock %}
